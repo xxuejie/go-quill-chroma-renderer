@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 
 	"github.com/alecthomas/chroma"
 	"github.com/fmpwizard/go-quilljs-delta/delta"
@@ -49,6 +50,14 @@ func FormatToChroma(w io.Writer, style *chroma.Style, it chroma.Iterator) error 
 		return err
 	}
 	data, err := json.Marshal(delta)
+	if err != nil {
+		return err
+	}
+	if len(data) > math.MaxUint32 {
+		return fmt.Errorf("Delta too long: %d", len(data))
+	}
+	length := fmt.Sprintf("%11d ", len(data))
+	_, err = w.Write([]byte(length))
 	if err != nil {
 		return err
 	}

@@ -3,6 +3,7 @@ package renderer
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -67,9 +68,18 @@ func TestChromaHighlighting(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	var length int
+	_, err = fmt.Sscanf(string(buffer.Bytes()[:12]), "%11d ", &length)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if length != len(AlgolRenderedSource) {
+		t.Fatalf("Invalid length, expected: %d, actual: %d",
+			len(AlgolRenderedSource), length)
+	}
 
 	var d delta.Delta
-	err = json.Unmarshal(buffer.Bytes(), &d)
+	err = json.Unmarshal(buffer.Bytes()[12:], &d)
 	if err != nil {
 		t.Fatal(err)
 	}
